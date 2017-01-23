@@ -39,7 +39,8 @@
     leftView.backgroundColor = [UIColor clearColor];
     keyWord.leftViewMode=UITextFieldViewModeAlways;
     keyWord.leftView = leftView;
-    
+    keyWord.returnKeyType = UIReturnKeySearch; //设置换行键
+    keyWord.delegate=self;
     [self.view addSubview:keyWord];
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(textFiledEditChanged:)
                                                 name:@"UITextFieldTextDidChangeNotification"
@@ -100,6 +101,15 @@
     [self search];
     
 }
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    [self search];//开始搜索
+    [self.view endEditing:YES]; //收起键盘
+    NSLog(@"search!!!!!!");
+    return YES;
+}
+
+
 
 
 -(void)search{
