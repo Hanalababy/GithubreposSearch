@@ -76,10 +76,8 @@
     pageDownBtn.hidden=YES;
     
     /*go to page()*/
-    Page = [[UITextField alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-25,150,50,30)];
-    Page .layer.borderWidth = 1.0;
-    Page .layer.borderColor = [UIColor lightGrayColor].CGColor;
-    Page.layer.cornerRadius = 5.0;
+    Page = [[UILabel alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-50,150,100,30)];
+    Page .textColor = [UIColor grayColor];
     Page.textAlignment=NSTextAlignmentCenter;
     [self.view addSubview:Page];
     Page.hidden=YES;
@@ -96,7 +94,6 @@
 -(void)textFiledEditChanged:(NSNotification *)obj{
     UITextField *textField = (UITextField *)obj.object;
     NSString *toBeString = textField.text;
-    NSLog(@"%@",keyWord.text);
     page=1;
     [self search];
     
@@ -105,7 +102,6 @@
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     [self search];//开始搜索
     [self.view endEditing:YES]; //收起键盘
-    NSLog(@"search!!!!!!");
     return YES;
 }
 
@@ -114,8 +110,12 @@
 
 -(void)search{
     NSString* httpUrl=[NSString stringWithFormat:@"https://api.github.com/search/repositories?q=%@&page=%d&client_id=404dd6cdb4704832f881&client_secret=02a5725f1e7166a6ba132ad711edc57c5dfad13f",keyWord.text,page];
+   
+    /*中文搜索 将NSString转换成UTF8编码的NSString*/
+    NSString * encodedString = (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes( kCFAllocatorDefault, (CFStringRef)httpUrl, NULL, NULL,  kCFStringEncodingUTF8 ));
+    
     //设置URL
-    NSURL *url=[NSURL URLWithString:httpUrl];
+    NSURL *url=[NSURL URLWithString:encodedString];
     //创建请求
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10];
     [request setHTTPMethod:@"GET"];//设置请求方式为POST，默认为GET
@@ -160,7 +160,7 @@
     tableView.tableFooterView = [[UIView alloc] init]; //去除多余横线
     [self.view addSubview:tableView];
     
-    Page.text=[NSString stringWithFormat:@"%d",page];
+    Page.text=[NSString stringWithFormat:@"Page:%d",page];
     /*page up&page down*/
     if(page==1) pageUpBtn.hidden=YES;
     else pageUpBtn.hidden=NO;

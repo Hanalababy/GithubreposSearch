@@ -11,7 +11,7 @@
 @interface ViewController : UIViewController{
     UITextField*  keyWord;
     NSDictionary* dic;
-    UITextField*  Page;
+    UILabel*  Page;
     int page; //current page
     int total; //total page
     UIButton* pageUpBtn;
