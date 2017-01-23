@@ -20,7 +20,6 @@
     
     //enter keywords, show the result include owner and repo’s name
     
-    //[dic objectForKey:@"portrait"]!=nil
     
     UILabel*title =[[UILabel alloc]initWithFrame:CGRectMake(0, 50, self.view.frame.size.width, 20)];
     title.text=@"Github Repositories Search";
@@ -113,20 +112,16 @@
    
     /*中文搜索 将NSString转换成UTF8编码的NSString*/
     NSString * encodedString = (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes( kCFAllocatorDefault, (CFStringRef)httpUrl, NULL, NULL,  kCFStringEncodingUTF8 ));
-    
-    //设置URL
     NSURL *url=[NSURL URLWithString:encodedString];
     //创建请求
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10];
-    [request setHTTPMethod:@"GET"];//设置请求方式为POST，默认为GET
-    /* NSString *param= [@"token="stringByAppendingString:[[NSUserDefaults standardUserDefaults] objectForKey:@"token"]];//设置参数
-     NSData *data = [param dataUsingEncoding:NSUTF8StringEncoding];*/
+    [request setHTTPMethod:@"GET"];
     [request setHTTPBody:nil];
     //连接服务器
     NSError *error=nil;
     NSData *received = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
     NSString *result= [[NSString alloc]initWithData:received encoding:NSUTF8StringEncoding];
-    //将其构造成一个字典再解析
+
     NSData* resultData = [result dataUsingEncoding:NSUTF8StringEncoding];
     dic = [NSJSONSerialization JSONObjectWithData:resultData options:0 error:nil];
     if (error) {
@@ -154,10 +149,10 @@
 -(void) list{
     /*result list*/
     tableView=[[UITableView alloc] initWithFrame:CGRectMake(0,200,self.view.frame.size.width,self.view.frame.size.height-200)];
-    [tableView setSeparatorInset:UIEdgeInsetsZero]; //设置tableview 分割线从最左边开始
+    [tableView setSeparatorInset:UIEdgeInsetsZero];
     [tableView setDelegate:self];
     [tableView setDataSource:self];
-    tableView.tableFooterView = [[UIView alloc] init]; //去除多余横线
+    tableView.tableFooterView = [[UIView alloc] init];
     [self.view addSubview:tableView];
     
     Page.text=[NSString stringWithFormat:@"Page:%d",page];
@@ -182,51 +177,36 @@
     NSLog(@"%d",page);
 }
 
+/*TableView Setting*/
 
-
-/*section Row 的高度*/
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     return 50;
 }
-/*section Header 的高度*/
+
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
     return 0;
 }
 
-//指定有多少个分区(Section)，默认为1
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
 }
 
-
-/*每个section的行数*/
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return [[dic objectForKey:@"items"] count]; //搜索结果的条数
+    return [[dic objectForKey:@"items"] count];
 }
 
-
-//每个section显示的标题
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section{
-    return @"";
-}
-
-//绘制Cell
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    // 1.创建cell
-    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     
-    // 2.设置数据
+    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     cell.textLabel.text=[NSString stringWithFormat:@"%@/%@",[[[[dic objectForKey:@"items"] objectAtIndex:indexPath.row] objectForKey:@"owner"] objectForKey:@"login"],[[[dic objectForKey:@"items"] objectAtIndex:indexPath.row] objectForKey:@"name"]];
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     
     return cell;
 }
 
-/*tableView 点击监听*/
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    //选中时颜色变化后自动回复
+    
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    /*点击打开url连接*/
     NSURL *url = [ [ NSURL alloc ] initWithString: [[[dic objectForKey:@"items"] objectAtIndex:indexPath.row] objectForKey:@"html_url"] ];
     [[UIApplication sharedApplication] openURL:url];
 }
